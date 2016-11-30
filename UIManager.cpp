@@ -19,6 +19,17 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+/***********************自己定义的全局变量/全局函数*********************/
+myui::cPicture* g_pic=NULL;				//全局图片控价对象
+void OnPicLButtonDown(int iStepLen)
+{
+	//点击一下图片右移
+	POINT pt=g_pic->GetPos();
+	pt.x+=iStepLen;
+	g_pic->SetPos(pt);
+}
+/***************************************************/
+
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -121,7 +132,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
    /*****************添加自己的初始化代码********************/
 	myui::cUIManager *pUIManager=CreateUI(hWnd);	//创建UI管理器
-	myui::cPicture *pic=pUIManager->CreatePicture(L"lena512.bmp");		//创建图片
+	g_pic=pUIManager->CreatePicture(L"lena512.bmp");//创建图片
+	pUIManager->AddEnvent(g_pic,myui::event_lbuttondown,OnPicLButtonDown,100);
    /**********************************************************/
    return TRUE;
 }
