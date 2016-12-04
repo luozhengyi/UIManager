@@ -21,12 +21,20 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 /***********************自己定义的全局变量/全局函数*********************/
 myui::cPicture* g_pic=NULL;				//全局图片控价对象
+myui::cButton* g_btn=NULL;				//全局按钮控价对象
 void OnPicLButtonDown(int iStepLen)
 {
 	//点击一下图片右移
 	POINT pt=g_pic->GetPos();
 	pt.x+=iStepLen;
 	g_pic->SetPos(pt);
+}
+void OnBtnLButtonDown(int iStepLen)
+{
+	//点击一下图片右移
+	POINT pt=g_btn->GetPos();
+	pt.y+=iStepLen;
+	g_btn->SetPos(pt);
 }
 /***************************************************/
 
@@ -131,9 +139,32 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
    /*****************添加自己的初始化代码********************/
-	myui::cUIManager *pUIManager=CreateUI(hWnd);	//创建UI管理器
-	g_pic=pUIManager->CreatePicture(L"lena512.bmp");//创建图片
-	pUIManager->AddEnvent(g_pic,myui::event_lbuttondown,OnPicLButtonDown,100);
+	myui::cUIManager *pUIManager=CreateUI(hWnd);				//创建UI管理器
+	g_pic=pUIManager->CreatePicture("desktop.bmp");			//创建图片
+	pUIManager->AddEnvent(g_pic,myui::event_lbuttondown,OnPicLButtonDown,20);	//为图片控件添加事件响应函数
+
+	//创建文字
+	myui::cText* pText=pUIManager->CreateText("我是正常文字");
+	POINT pt;
+	pt.x=100;
+	pt.y=200;
+	pText->SetPos(pt);
+	pText->SetTextColor(RGB(255,0,0));
+
+	myui::cText* pText2=pUIManager->CreateText("我是闪烁文字",RGB(213,212,34),myui::text_twinkle);
+	pt.x=500;
+	pText2->SetPos(pt);
+	pText2->SetTextSize(30);
+
+	myui::cText* pText3=pUIManager->CreateText("我是滚动文字",RGB(213,212,34),myui::text_scoll);
+	pt.x=800;
+	pText3->SetPos(pt);
+	pText3->SetTextSize(30);
+
+	//创建按钮
+	g_btn=pUIManager->CreateButton("normal.bmp","mouseon.bmp","click.bmp");
+	pUIManager->AddEnvent(g_btn,myui::event_lbuttondown,OnBtnLButtonDown,20);	//为图片控件添加事件响应函数
+
    /**********************************************************/
    return TRUE;
 }

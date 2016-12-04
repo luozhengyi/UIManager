@@ -1,56 +1,66 @@
+#ifndef __CMYTIMER_H__
+#define __CMYTIMER_H__
+
 #pragma once
-#include "string"
+#include <string>
 #include "list"
+#include "iostream"
+#include "windows.h"
 using namespace std;
 
-struct stTimer
+/******************************* 定时器结构体 ****************************/
+struct stTimer				//保存定时器信息的定时器
 {
-	unsigned timeElapce;	//定时器间隔运行时间
-	unsigned timeCreate;	//定时器创建时间
-	unsigned timeLastRun;	//定时器上次执行时间
-	unsigned id;					//定时器ID号
-	int iParam;				//预留参数
-	string	strParam;		//预留参数
-	bool bDel;				//是否已被删除
-
-	stTimer()
+	unsigned timerID	;		//定时器ID
+	unsigned timeElapse;		//定时器运行时间间隔
+	unsigned timeLastRun;	//定时器上次运行时间
+	int  iParam;				//预留参数
+	string strParam;			//预留参数
+	bool bDel;				//是否要被删除
+	stTimer()				//构造函数,初始化
 	{
-		timeCreate = 0;
-		timeLastRun = 0;
-		id = -1;
-		iParam = 0;
-		bDel = false;
+		timerID=0;
+		timeElapse=0;
+		timeLastRun=0;
+		iParam=0;
+		strParam="";
+		bDel=false;
 	}
 };
+/************************************************************************/
 
-typedef list<stTimer> stTimerList;
-typedef list<stTimer>::iterator itTimerList;
+/**************************** 类型重定义 *********************************/
+typedef std::list<stTimer>				ListTimer;	
+typedef std::list<stTimer>::iterator	  itListTimer;	
+/************************************************************************/
 
+/************************* 定时器类：cMyTimer ************************/
 class cMyTimer
 {
 public:
 	cMyTimer();
 	virtual ~cMyTimer();
+public:
+	//添加定时器，启动定时器线程:timerID(定时器ID)、timeElapse(定时器时间间隔)、3，4(预留参数)
+	void AddTimer(unsigned timerID,unsigned timeElapse,int iParam=0,string strParam="");	
+	//定时器控制函数：判断、控制定时器的运行，被定时器线程回调函数CallBack_TimerProc()调用
+	bool TimerCtrlRun();
+public:
+	//定时器响应函数，被定时器控制函数TimerCtrlRun()调用；
+	//子类要继承、重载；如果返回0，则执行完这次后销毁，否则继续;也可以根据返回值修改间隔时间
+	//Ontimer()内部应该判断timerID，不同的定时器ID执行不同的响应。
+	virtual unsigned OnTimer(unsigned timerID,int iParam,string strParam)=0;
+public:
+	//检测、删除bDel状态为TRUE的定时器
+	void CheckDelTimer();
+	//根据timerID删除定时器
+	void DeletTimer(unsigned timerID);
 
-	//添加定时器
-	void AddTimer(unsigned timerId, unsigned timeMs,int param = 0,
-		char* p=NULL);
-	//删除定时器
-	void DeleteTimer(int id);
 
-	//定时器处理
-	virtual int OnTimer(int id,int iParam,string str) = 0;
-	
-	//检测定时器运行
-	bool TimerRun();
-	
-	//清除所有定时器
-	void ClearTimer();
-	//定时检测删除定时器
-	void CheckDelTimer();	
 private:
-		
-	
+	ListTimer m_listTimer;	//列表用来保存所有的定时器
 
-	stTimerList m_timerList;	//定时器列表
 };
+/*********************************************************************/
+
+#endif  //__CMYTIMER_H__
